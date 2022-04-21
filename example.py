@@ -3,6 +3,10 @@ from classifiers.random_forest import RandomForestBinaryClassifier
 
 classifier = RandomForestBinaryClassifier()
 training_data = read_csv("./data/titanic.csv")
+
+training_data = training_data.drop("Name", axis=1)
+training_data = training_data.drop("Fare", axis=1)
+
 print("Training...")
 classifier.train(training_data, "Survived")
 
