@@ -100,21 +100,21 @@ class RandomForestBinaryClassifier(Classifier):
                 self.label_column
             ]
 
-        median_times_classified_as_true = results_dataframe[
+        mean_times_classified_as_true = results_dataframe[
             "times_classified_as_true"
-        ].median()
+        ].mean()
         stdev_times_classified_as_true = results_dataframe[
             "times_classified_as_true"
         ].std()
 
         results_dataframe["standard_devs_from_median"] = (
             results_dataframe["times_classified_as_true"]
-            - median_times_classified_as_true
+            - mean_times_classified_as_true
         ) / stdev_times_classified_as_true
 
         results_dataframe[self.label_column] = False
         results_dataframe.loc[
-            results_dataframe.standard_devs_from_median > self.threshold,
+            results_dataframe.standard_devs_from_median < self.threshold,
             self.label_column,
         ] = True
 
