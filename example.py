@@ -1,45 +1,55 @@
 from pandas import read_csv, DataFrame
 from classifiers.random_forest import RandomForestBinaryClassifier
 
+# Instantiate the classifier
 classifier = RandomForestBinaryClassifier()
+
+# Read in the data
 all_data = read_csv("./data/titanic.csv")
 
+# Drop unusable columns
 all_data = all_data.drop("Name", axis=1)
 all_data = all_data.drop("Fare", axis=1)
 
+# Randomize order of data
 all_data = all_data.sample(frac=1, axis=1).reset_index(drop=True)
 
+# Train/Test split
 test_data = DataFrame(all_data.iloc[0 : round(len(all_data) / 4)])
 training_data = DataFrame(all_data.iloc[round(len(all_data) / 4) : len(all_data)])
 
+# Train the model with training data
 print("Training...")
 classifier.train(training_data, "Survived")
 
+# Predict with test data
 print("Analyzing...")
 results = classifier.predict(test_data)
-training_data["predicted"] = results.Survived
+test_data["predicted"] = results.Survived
 
-accuracy = len(
-    training_data[(training_data["predicted"] == training_data["Survived"])]
-) / len(training_data)
+# Compute accuracy
+
+accuracy = len(test_data[(test_data["predicted"] == test_data["Survived"])]) / len(
+    test_data
+)
 print(f"Overall accuracy: {accuracy}")
 
 accuracy = len(
     (
-        training_data[
-            (training_data["Survived"] == True)
-            & (training_data["predicted"] == training_data["Survived"])
+        test_data[
+            (test_data["Survived"] == True)
+            & (test_data["predicted"] == test_data["Survived"])
         ]
     )
-) / len(training_data)
+) / len(test_data)
 print(f"Accuracy survived: {accuracy}")
 
 accuracy = len(
     (
-        training_data[
-            (training_data["Survived"] == False)
-            & (training_data["predicted"] == training_data["Survived"])
+        test_data[
+            (test_data["Survived"] == False)
+            & (test_data["predicted"] == test_data["Survived"])
         ]
     )
-) / len(training_data)
+) / len(test_data)
 print(f"Accuracy did not survived: {accuracy}")
