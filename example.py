@@ -2,7 +2,7 @@ from pandas import read_csv, DataFrame
 from classifiers.random_forest import RandomForestBinaryClassifier
 
 # Instantiate the classifier
-classifier = RandomForestBinaryClassifier()
+classifier = RandomForestBinaryClassifier(threshold=0.5)
 
 # Read in the data
 all_data = read_csv("./data/titanic.csv")
@@ -10,9 +10,6 @@ all_data = read_csv("./data/titanic.csv")
 # Drop unusable columns
 all_data = all_data.drop("Name", axis=1)
 all_data = all_data.drop("Fare", axis=1)
-
-# Randomize order of data
-all_data = all_data.sample(frac=1, axis=1).reset_index(drop=True)
 
 # Train/Test split
 test_data = DataFrame(all_data.iloc[0 : round(len(all_data) / 4)])

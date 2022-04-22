@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from random import random
+from random import random, seed
 from typing import cast
 
 from pandas import DataFrame
@@ -19,10 +19,11 @@ class RandomForestBinaryClassifier(Classifier):
         self,
         num_trees=100,
         threshold=0,
-        min_samples=5,
+        min_samples=10,
         min_features=2,
         min_samples_per_leaf=1,
         max_impurity=1,
+        random_seed=42,
     ):
         self.features: list[str] = []
         self.trees: list[BootstrappedTree] = []
@@ -31,6 +32,8 @@ class RandomForestBinaryClassifier(Classifier):
         self.threshold = threshold
         self.min_samples = min_samples
         self.min_features = min_features
+        self.random_seed = random_seed
+        seed(self.random_seed)
 
         self.min_samples_per_leaf = min_samples_per_leaf
         self.max_impurity = max_impurity
@@ -41,7 +44,7 @@ class RandomForestBinaryClassifier(Classifier):
         self.label_column = label_column
 
         self.trees = []
-        for index in range(0, self.num_trees):
+        for _ in range(0, self.num_trees):
             random_subsample = dataframe.sample(
                 n=max(
                     min(
@@ -50,7 +53,7 @@ class RandomForestBinaryClassifier(Classifier):
                     ),
                     self.min_samples,
                 ),
-                random_state=index,
+                random_state=self.random_seed,
             )
 
             random_samples_and_features = random_subsample.drop(
@@ -62,7 +65,7 @@ class RandomForestBinaryClassifier(Classifier):
                         self.min_features,
                     )
                 ),
-                random_state=index,
+                random_state=self.random_seed,
                 axis="columns",
             )
 
