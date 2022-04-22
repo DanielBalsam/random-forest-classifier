@@ -19,10 +19,10 @@ class RandomForestBinaryClassifier(Classifier):
         self,
         num_trees=100,
         threshold=0,
-        min_samples=10,
+        min_samples=5,
         min_features=2,
-        tree_min_num_to_split=1,
-        tree_max_error=5,
+        min_samples_per_leaf=1,
+        max_impurity=1,
     ):
         self.features: list[str] = []
         self.trees: list[BootstrappedTree] = []
@@ -32,8 +32,8 @@ class RandomForestBinaryClassifier(Classifier):
         self.min_samples = min_samples
         self.min_features = min_features
 
-        self.tree_min_num_to_split = tree_min_num_to_split
-        self.tree_max_error = tree_max_error
+        self.min_samples_per_leaf = min_samples_per_leaf
+        self.max_impurity = max_impurity
 
     def train(self, dataframe: DataFrame, label_column: str):
         features_df = dataframe.drop(label_column, axis=1)
@@ -68,8 +68,8 @@ class RandomForestBinaryClassifier(Classifier):
 
             tree = BootstrappedTree(
                 classifier=DecisionTreeBinaryClassifier(
-                    min_num_to_split=self.tree_min_num_to_split,
-                    max_error=self.tree_max_error,
+                    min_samples_per_leaf=self.min_samples_per_leaf,
+                    max_impurity=self.max_impurity,
                 ),
                 features=list(random_samples_and_features.columns),
             )
@@ -114,7 +114,7 @@ class RandomForestBinaryClassifier(Classifier):
 
         results_dataframe[self.label_column] = False
         results_dataframe.loc[
-            results_dataframe.standard_devs_from_median < self.threshold,
+            results_dataframe.standard_devs_from_median > self.threshold,
             self.label_column,
         ] = True
 
