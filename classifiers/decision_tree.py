@@ -42,21 +42,22 @@ class Node:
                     ]
                 )
 
-                self.left_child = Node(
-                    left_side_data,
-                    label_column,
-                    min_samples_per_leaf=self.min_samples_per_leaf,
-                    max_impurity=self.max_impurity,
-                )
-                self.right_child = Node(
-                    right_side_data,
-                    label_column,
-                    min_samples_per_leaf=self.min_samples_per_leaf,
-                    max_impurity=self.max_impurity,
-                )
-                self.is_leaf = False
+                if len(left_side_data) != len(self.input_data):
+                    self.left_child = Node(
+                        left_side_data,
+                        label_column,
+                        min_samples_per_leaf=self.min_samples_per_leaf,
+                        max_impurity=self.max_impurity,
+                    )
+                    self.right_child = Node(
+                        right_side_data,
+                        label_column,
+                        min_samples_per_leaf=self.min_samples_per_leaf,
+                        max_impurity=self.max_impurity,
+                    )
+                    self.is_leaf = False
 
-                return
+                    return
 
         self.is_leaf = True
 
@@ -71,7 +72,7 @@ class Node:
         min_samples_per_leaf = self.min_samples_per_leaf
         best_feature: str = ""
         best_value: Any = None
-        max_impurity = self.max_impurity
+        max_impurity = 100
 
         for feature in self.features:
             unique_values = list(self.input_data[feature].unique())
@@ -99,11 +100,12 @@ class Node:
 
 
 class DecisionTreeBinaryClassifier(Classifier):
-    def __init__(self, min_samples_per_leaf=1, max_impurity=1):
+    def __init__(self, min_samples_per_leaf=1, max_impurity=1, verbose=False):
         self.features: list[str] = []
 
         self.min_samples_per_leaf = min_samples_per_leaf
         self.max_impurity = max_impurity
+        self.verbose = verbose
 
     def train(self, dataframe: DataFrame, label_column: str):
         features_df = dataframe.drop(label_column, axis=1)
@@ -136,6 +138,11 @@ class DecisionTreeBinaryClassifier(Classifier):
                 should_go_left = (
                     row[current_node.split_feature] == current_node.split_value
                 )
+
+                if self.verbose:
+                    print(
+                        f"Assessing if {current_node.split_feature} is {current_node.split_value}"
+                    )
 
                 if should_go_left and current_node.left_child:
                     current_node = current_node.left_child

@@ -2,7 +2,7 @@ from pandas import read_csv, DataFrame
 from classifiers.random_forest import RandomForestBinaryClassifier
 
 # Instantiate the classifier
-classifier = RandomForestBinaryClassifier(threshold=0.5)
+classifier = RandomForestBinaryClassifier()
 
 # Read in the data
 all_data = read_csv("./data/titanic.csv")

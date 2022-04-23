@@ -19,24 +19,26 @@ class RandomForestBinaryClassifier(Classifier):
         self,
         num_trees=100,
         threshold=0,
-        min_samples=10,
-        min_features=2,
+        min_samples_pre_tree=10,
+        min_features_per_tree=2,
         min_samples_per_leaf=1,
         max_impurity=1,
         random_seed=42,
+        verbose=False,
     ):
         self.features: list[str] = []
         self.trees: list[BootstrappedTree] = []
 
         self.num_trees = num_trees
         self.threshold = threshold
-        self.min_samples = min_samples
-        self.min_features = min_features
+        self.min_samples_pre_tree = min_samples_pre_tree
+        self.min_features_per_tree = min_features_per_tree
         self.random_seed = random_seed
         seed(self.random_seed)
 
         self.min_samples_per_leaf = min_samples_per_leaf
         self.max_impurity = max_impurity
+        self.verbose = verbose
 
     def train(self, dataframe: DataFrame, label_column: str):
         features_df = dataframe.drop(label_column, axis=1)
@@ -51,7 +53,7 @@ class RandomForestBinaryClassifier(Classifier):
                         round(len(dataframe) / (random() * self.num_trees)),
                         len(dataframe),
                     ),
-                    self.min_samples,
+                    self.min_samples_pre_tree,
                 ),
                 random_state=self.random_seed,
             )
@@ -62,7 +64,7 @@ class RandomForestBinaryClassifier(Classifier):
                 n=round(
                     min(
                         max(random() * len(self.features), len(self.features)),
-                        self.min_features,
+                        self.min_features_per_tree,
                     )
                 ),
                 random_state=self.random_seed,
@@ -73,6 +75,7 @@ class RandomForestBinaryClassifier(Classifier):
                 classifier=DecisionTreeBinaryClassifier(
                     min_samples_per_leaf=self.min_samples_per_leaf,
                     max_impurity=self.max_impurity,
+                    verbose=self.verbose,
                 ),
                 features=list(random_samples_and_features.columns),
             )
