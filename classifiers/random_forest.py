@@ -18,7 +18,6 @@ class RandomForestBinaryClassifier(Classifier):
     def __init__(
         self,
         num_trees=100,
-        threshold=0,
         min_samples_pre_tree=10,
         min_features_per_tree=2,
         min_samples_per_leaf=1,
@@ -30,7 +29,6 @@ class RandomForestBinaryClassifier(Classifier):
         self.trees: list[BootstrappedTree] = []
 
         self.num_trees = num_trees
-        self.threshold = threshold
         self.min_samples_pre_tree = min_samples_pre_tree
         self.min_features_per_tree = min_features_per_tree
         self.random_seed = random_seed
@@ -106,25 +104,12 @@ class RandomForestBinaryClassifier(Classifier):
                 self.label_column
             ]
 
-        mean_times_classified_as_true = results_dataframe[
-            "times_classified_as_true"
-        ].mean()
-        stdev_times_classified_as_true = results_dataframe[
-            "times_classified_as_true"
-        ].std()
-
-        results_dataframe["standard_devs_from_median"] = (
-            results_dataframe["times_classified_as_true"]
-            - mean_times_classified_as_true
-        ) / stdev_times_classified_as_true
-
         results_dataframe[self.label_column] = False
         results_dataframe.loc[
-            results_dataframe.standard_devs_from_median > self.threshold,
+            results_dataframe.times_classified_as_true > (self.num_trees / 2),
             self.label_column,
         ] = True
 
-        results_dataframe = results_dataframe.drop("standard_devs_from_median", axis=1)
         results_dataframe = results_dataframe.drop("times_classified_as_true", axis=1)
 
         return results_dataframe
