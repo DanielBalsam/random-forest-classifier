@@ -47,10 +47,7 @@ class RandomForestBinaryClassifier(Classifier):
         for _ in range(0, self.num_trees):
             random_subsample = dataframe.sample(
                 n=max(
-                    min(
-                        round(len(dataframe) / (random() * self.num_trees)),
-                        len(dataframe),
-                    ),
+                    round(random() * len(dataframe)),
                     self.min_samples_pre_tree,
                 ),
                 random_state=self.random_seed,
@@ -60,8 +57,8 @@ class RandomForestBinaryClassifier(Classifier):
                 label_column, axis=1
             ).sample(
                 n=round(
-                    min(
-                        max(random() * len(self.features), len(self.features)),
+                    max(
+                        random() * len(self.features),
                         self.min_features_per_tree,
                     )
                 ),

@@ -1,4 +1,4 @@
-from random import shuffle
+from random import seed, shuffle
 from typing import Any
 from pandas import DataFrame, Series
 from .classifier import Classifier
@@ -100,12 +100,16 @@ class Node:
 
 
 class DecisionTreeBinaryClassifier(Classifier):
-    def __init__(self, min_samples_per_leaf=1, max_impurity=1, verbose=False):
+    def __init__(
+        self, min_samples_per_leaf=1, max_impurity=1, verbose=False, random_seed=42
+    ):
         self.features: list[str] = []
 
         self.min_samples_per_leaf = min_samples_per_leaf
         self.max_impurity = max_impurity
         self.verbose = verbose
+
+        seed(42)
 
     def train(self, dataframe: DataFrame, label_column: str):
         features_df = dataframe.drop(label_column, axis=1)
